@@ -13,9 +13,9 @@
 #include "user_interface.h"
 #include "espconn.h"
 
-char gFormID[64];
-uint8_t fieldSize;
-char gFormEntryIDs[8][24];
+static char gFormID[64];
+static uint8_t fieldSize;
+static char gFormEntryIDs[8][24];
 static struct espconn *conn;
 
 void ICACHE_FLASH_ATTR
@@ -82,7 +82,7 @@ at_setupCmdGformset(uint8_t id, char *pPara) {
 }
 
 void ICACHE_FLASH_ATTR
-at_exeCmdGformsubmit(uint8_t id) {
+at_setupCmdGformsubmit(uint8_t id, char *pPara) {
 	uint8_t tmpSize, i;
 	char tmp[256];
 

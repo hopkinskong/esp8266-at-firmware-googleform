@@ -60,7 +60,7 @@ at_funcationType at_fun[at_cmdNum]={
   {"+CIPING", 7, NULL, NULL, NULL, at_exeCmdCiping},
   {"+CIPAPPUP", 9, NULL, NULL, NULL, at_exeCmdCipappup},
   {"+GFORMSET", 9, NULL, NULL, at_setupCmdGformset, NULL},
-  {"+GFORMSUBMIT", 12, NULL, NULL, NULL, at_exeCmdGformsubmit},
+  {"+GFORMSUBMIT", 12, NULL, NULL, at_setupCmdGformsubmit, NULL},
 #ifdef ali
   {"+MPINFO", 7, NULL, NULL, at_setupCmdMpinfo, NULL}
 #endif
