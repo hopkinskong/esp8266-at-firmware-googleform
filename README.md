@@ -11,8 +11,19 @@ Features:
 - Directly submitting data to Google Form.
 - SSL implemented for submitting data (As Google forced it)
 
-Usage:
-[1] AT+GFORMSET=<form_id>,<total_number_of_entries>,<entry_1>,<entry_2>,...\r\n
-MAX ENTRIES=5 (For saving RAM, or you will meet unexpected behaviour)
-
-[2] AT+GFORMSUBMIT=<data_for_entry_1>,<data_for_entry_2>,...\r\n
+ * USAGE:
+ * AT+GFORMSET=<Google Form ID>,<Entry Count(MAX n)>,<Entry_1>,<Entry_2>,<Entry_n>,...
+ * After running AT+GFORMSET, execute AT+GFORMSUBMIT:
+ * AT+GFORMSUBMIT=<Entry_n_data>,<Entry_1_data>,<Entry_2_data>,<Entry_n_data>,...
+ *
+ * NOTE:
+ * Maximum entry count is 5, each entry should contain no more than 19 chars
+ * (For saving RAM, or you will meet unexpected behaviour)
+ * Maximum Google Form ID chars is 59
+ * Don't put too big data (lengthy data) in GFORMSUBMIT
+ * Comma (,) is not allowed in any fields including form ID, entry names and entry data
+ * Remember to put \r\n after each command (complies with the original AT FW specifications)
+ *
+ * EXAMPLE:
+ * AT+GFORMSET=1bg-8CAyVF3Rq3Q_1Z87BLxUrE4aKB1AEMhkXyQAl-u4,2,entry.1335153026,entry.1490820559
+ * AT+GFORMSUBMIT=answer_1,answer_2
