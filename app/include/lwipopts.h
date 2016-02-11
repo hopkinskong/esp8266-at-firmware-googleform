@@ -2045,4 +2045,8 @@
 #define DNS_DEBUG                       LWIP_DBG_OFF
 #endif
 
+#ifndef TCP_MSL
+#define TCP_MSL 2000UL /* The maximum segment lifetime in milliseconds */
+#endif
+
 #endif /* __LWIP_OPT_H__ */

@@ -14,4 +14,5 @@
  ../../include/eagle_soc.h ../../include/user_interface.h \
  ../../include/os_type.h ../../include/ets_sys.h ../../include/c_types.h \
  ../../include/eagle_soc.h ../../include/ip_addr.h ../../include/queue.h \
- ../../include/spi_flash.h ../../include/espconn.h
+ ../../include/spi_flash.h ../../include/mem.h \
+ ../../include/../include/espconn.h

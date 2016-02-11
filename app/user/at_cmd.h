@@ -24,7 +24,7 @@
 #include "at_baseCmd.h"
 #include "at_gformCmd.h"
 
-#define at_cmdNum   33
+#define at_cmdNum   33-1 // Removed AT+CIUPDATE
 
 at_funcationType at_fun[at_cmdNum]={
   {NULL, 0, NULL, NULL, NULL, at_exeCmdNull},
@@ -56,7 +56,7 @@ at_funcationType at_fun[at_cmdNum]={
   {"+CIPSERVER", 10, NULL, NULL,at_setupCmdCipserver, NULL},
   {"+CIPMODE", 8, NULL, at_queryCmdCipmode, at_setupCmdCipmode, NULL},
   {"+CIPSTO", 7, NULL, at_queryCmdCipsto, at_setupCmdCipsto, NULL},
-  {"+CIUPDATE", 9, NULL, NULL, NULL, at_exeCmdCiupdate},
+//  {"+CIUPDATE", 9, NULL, NULL, NULL, at_exeCmdCiupdate}, // Removed to save ROM, and it is utterly useless :P
   {"+CIPING", 7, NULL, NULL, NULL, at_exeCmdCiping},
   {"+CIPAPPUP", 9, NULL, NULL, NULL, at_exeCmdCipappup},
   {"+GFORMSET", 9, NULL, NULL, at_setupCmdGformset, NULL},

@@ -68,7 +68,7 @@ void at_setupCmdCipmode(uint8_t id, char *pPara);
 void at_queryCmdCipsto(uint8_t id);
 void at_setupCmdCipsto(uint8_t id, char *pPara);
 
-void at_exeCmdCiupdate(uint8_t id);
+//void at_exeCmdCiupdate(uint8_t id);
 
 void at_exeCmdCiping(uint8_t id);
 

@@ -1902,7 +1902,10 @@ struct esp_platform_sec_flag_param {
  * Parameters   : pespconn -- the espconn used to connetion with the host
  * Returns      : none
 *******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
+/*
+ * REMOVED
+ */
+/*LOCAL void ICACHE_FLASH_ATTR
 at_upDate_rsp(void *arg)
 {
   struct upgrade_server_info *server = arg;
@@ -1966,7 +1969,7 @@ at_upDate_rsp(void *arg)
 //  espconn_disconnect(pespconn);
   specialAtState = TRUE;
   at_state = at_statIdle;
-}
+}*/
 
 ///******************************************************************************
 // * FunctionName : user_esp_platform_load_param
@@ -1993,7 +1996,10 @@ at_upDate_rsp(void *arg)
   * @param  arg: contain the ip link information
   * @retval None
   */
-static void ICACHE_FLASH_ATTR
+/*
+ * REMOVED
+ */
+/*static void ICACHE_FLASH_ATTR
 at_upDate_discon_cb(void *arg)
 {
   struct espconn *pespconn = (struct espconn *)arg;
@@ -2021,14 +2027,17 @@ at_upDate_discon_cb(void *arg)
   {
     uart0_sendStr("+CIPUPDATE:4\r\n");
   }
-}
+}*/
 
 /**
   * @brief  Udp server receive data callback function.
   * @param  arg: contain the ip link information
   * @retval None
   */
-LOCAL void ICACHE_FLASH_ATTR
+/*
+ * REMOVED
+ */
+/*LOCAL void ICACHE_FLASH_ATTR
 at_upDate_recv(void *arg, char *pusrdata, unsigned short len)
 {
   struct espconn *pespconn = (struct espconn *)arg;
@@ -2089,9 +2098,12 @@ at_upDate_recv(void *arg, char *pusrdata, unsigned short len)
   //  ESP_DBG(upServer->url);
 
 //  espconn_disconnect(pespconn);
-}
+}*/
 
-LOCAL void ICACHE_FLASH_ATTR
+/*
+ * REMOVED
+ */
+/*LOCAL void ICACHE_FLASH_ATTR
 at_upDate_wait(void *arg)
 {
   struct espconn *pespconn = arg;
@@ -2106,7 +2118,7 @@ at_upDate_wait(void *arg)
     specialAtState = TRUE;
     at_state = at_statIdle;
   }
-}
+}*/
 
 /******************************************************************************
  * FunctionName : user_esp_platform_sent_cb
@@ -2114,7 +2126,10 @@ at_upDate_wait(void *arg)
  * Parameters   : arg -- Additional argument to pass to the callback function
  * Returns      : none
 *******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
+/*
+ * REMOVED
+ */
+/*LOCAL void ICACHE_FLASH_ATTR
 at_upDate_sent_cb(void *arg)
 {
   struct espconn *pespconn = arg;
@@ -2122,14 +2137,17 @@ at_upDate_sent_cb(void *arg)
   os_timer_setfn(&at_delayCheck, (os_timer_func_t *)at_upDate_wait, pespconn);
   os_timer_arm(&at_delayCheck, 5000, 0);
   os_printf("at_upDate_sent_cb\r\n");
-}
+}*/
 
 /**
   * @brief  Tcp client connect success callback function.
   * @param  arg: contain the ip link information
   * @retval None
   */
-static void ICACHE_FLASH_ATTR
+/*
+ * REMOVED
+ */
+/*static void ICACHE_FLASH_ATTR
 at_upDate_connect_cb(void *arg)
 {
   struct espconn *pespconn = (struct espconn *)arg;
@@ -2157,14 +2175,17 @@ at_upDate_connect_cb(void *arg)
   espconn_sent(pespconn, temp, os_strlen(temp));
   os_free(temp);
 /////////////////////////
-}
+}*/
 
 /**
   * @brief  Tcp client connect repeat callback function.
   * @param  arg: contain the ip link information
   * @retval None
   */
-static void ICACHE_FLASH_ATTR
+/*
+ * REMOVED
+ */
+/*static void ICACHE_FLASH_ATTR
 at_upDate_recon_cb(void *arg, sint8 errType)
 {
   struct espconn *pespconn = (struct espconn *)arg;
@@ -2203,7 +2224,7 @@ at_upDate_recon_cb(void *arg, sint8 errType)
 //  os_printf("link repeat %d\r\n", repeaTime);
 //  pespconn->proto.tcp->local_port = espconn_port();
 //  espconn_connect(pespconn);
-}
+}*/
 
 /******************************************************************************
  * FunctionName : upServer_dns_found
@@ -2216,7 +2237,10 @@ at_upDate_recon_cb(void *arg, sint8 errType)
  *                dns_gethostbyname
  * Returns      : none
 *******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
+/*
+ * REMOVED
+ */
+/*LOCAL void ICACHE_FLASH_ATTR
 upServer_dns_found(const char *name, ip_addr_t *ipaddr, void *arg)
 {
   struct espconn *pespconn = (struct espconn *) arg;
@@ -2252,9 +2276,12 @@ upServer_dns_found(const char *name, ip_addr_t *ipaddr, void *arg)
 //      at_upDate_connect_cb(pespconn);
     }
   }
-}
+}*/
 
-void ICACHE_FLASH_ATTR
+/*
+ * REMOVED
+ */
+/*void ICACHE_FLASH_ATTR
 at_exeCmdCiupdate(uint8_t id)
 {
   pespconn = (struct espconn *)os_zalloc(sizeof(struct espconn));
@@ -2266,7 +2293,7 @@ at_exeCmdCiupdate(uint8_t id)
 
   specialAtState = FALSE;
   espconn_gethostbyname(pespconn, "iot.espressif.cn", &host_ip, upServer_dns_found);
-}
+}*/
 
 void ICACHE_FLASH_ATTR
 at_exeCmdCiping(uint8_t id)

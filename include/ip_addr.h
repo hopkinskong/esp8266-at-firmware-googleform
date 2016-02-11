@@ -15,12 +15,6 @@ struct ip_info {
     struct ip_addr gw;
 };
 
-#define IP4_ADDR(ipaddr, a,b,c,d) \
-        (ipaddr)->addr = ((uint32)((d) & 0xff) << 24) | \
-                         ((uint32)((c) & 0xff) << 16) | \
-                         ((uint32)((b) & 0xff) << 8)  | \
-                          (uint32)((a) & 0xff)
-
 /**
  * Determine if two address are on the same network.
  *
@@ -52,6 +46,11 @@ struct ip_info {
 #define ip4_addr3_16(ipaddr) ((uint16)ip4_addr3(ipaddr))
 #define ip4_addr4_16(ipaddr) ((uint16)ip4_addr4(ipaddr))
 
+
+/** 255.255.255.255 */
+#define IPADDR_NONE         ((uint32)0xffffffffUL)
+/** 0.0.0.0 */
+#define IPADDR_ANY          ((uint32)0x00000000UL)
 uint32 ipaddr_addr(const char *cp);
 
 #define IP2STR(ipaddr) ip4_addr1_16(ipaddr), \

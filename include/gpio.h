@@ -17,13 +17,13 @@ typedef enum {
     GPIO_PIN_INTR_DISABLE = 0,
     GPIO_PIN_INTR_POSEDGE = 1,
     GPIO_PIN_INTR_NEGEDGE = 2,
-    GPIO_PIN_INTR_ANYEGDE = 3,
+    GPIO_PIN_INTR_ANYEDGE = 3,
     GPIO_PIN_INTR_LOLEVEL = 4,
     GPIO_PIN_INTR_HILEVEL = 5
 } GPIO_INT_TYPE;
 
 #define GPIO_OUTPUT_SET(gpio_no, bit_value) \
-    gpio_output_set(bit_value<<gpio_no, ((~bit_value)&0x01)<<gpio_no, 1<<gpio_no,0)
+    gpio_output_set((bit_value)<<gpio_no, ((~(bit_value))&0x01)<<gpio_no, 1<<gpio_no,0)
 #define GPIO_DIS_OUTPUT(gpio_no) 	gpio_output_set(0,0,0, 1<<gpio_no)
 #define GPIO_INPUT_GET(gpio_no)     ((gpio_input_get()>>gpio_no)&BIT0)
 
