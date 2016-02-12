@@ -14,21 +14,25 @@
 #include "mem.h"
 #include "../include/espconn.h"
 
-#define SSL_BUFFER_SIZE 4096 // MAX=8192, but beyond 4096 may cause insufficient memory for packet assembly, so i recommend not to increase it.
+/*
+ *  Tested value:
+ *  3072 FAIL, IMMEDIATE DISCONNECTED, NEED TO INCREASE
+ *  3584 FAIL, IMMEDIATE DISCONNECTED, NEED TO INCREASE
+ *  4096 OK, BUT SOME DATA DROPPED, MAYBE CASUED BY INSUFFICIENT MEMORY/SSL_BUFFER_SIZE TOO SMALL??
+ */
+
+#define SSL_BUFFER_SIZE 5120 // MAX=8192, but beyond 4096 may cause insufficient memory for packet assembly, so i recommend not to increase it.
+#define PACKET_BUFFER_SIZE 224
 
 #define GOOGLE_FORM_DOMAIN "docs.google.com"
 #define GOOGLE_FORM_DOMAIN_PORT 443 // 443 for https
 
 os_timer_t timer;
 
-char gFormID[60];
-uint8_t fieldSize;
-char gFormEntryIDs[5][20];
 char *gFormData;
 struct espconn conn;
 struct _esp_tcp tcp;
 static ip_addr_t ip_addr;
-const char* REQUEST_HEADER = "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n";
 
 unsigned char *default_certificate;
 unsigned int default_certificate_len = 0;
@@ -37,67 +41,22 @@ unsigned int default_private_key_len = 0;
 
 extern uint8_t at_wifiMode;
 
-void ICACHE_FLASH_ATTR
+uint16_t ICACHE_FLASH_ATTR
 appendChar(char* s, uint16_t size, char c) {
 	s[size]=c;
 	s[size+1]='\0';
-}
-
-uint8_t ICACHE_FLASH_ATTR
-appendStr(char* s, uint16_t size, char* c) {
-	uint8_t i=0;
-	while(c[i] != '\0') {
-		appendChar(s, size, c[i]);
-		size++;
-		i++;
-	}
+	size++;
 	return size;
 }
 
-void ICACHE_FLASH_ATTR
-at_setupCmdGformset(uint8_t id, char *pPara) {
-	char fieldSizeChar[2];
-	uint8_t i, j, index;
-
-	pPara++; // Get pass "="
-
-	char *tmp = os_strchr(pPara, ',');
-	index = (uint8_t)(tmp - pPara);
-	for(i=0; i<=index-1; i++) {
-		gFormID[i]=pPara[0];
-		pPara++;
+uint16_t ICACHE_FLASH_ATTR
+appendStr(char* s, uint16_t size, char* c) {
+	uint8_t i=0;
+	while(c[i] != '\0') {
+		size=appendChar(s, size, c[i]);
+		i++;
 	}
-	gFormID[++i]='\0';
-	pPara++; // Get pass ","
-
-	tmp = os_strchr(pPara, ',');
-	index = (uint8_t)(tmp - pPara);
-	for(i=0; i<=index-1; i++) {
-		fieldSizeChar[i]=pPara[0];
-		pPara++;
-	}
-	fieldSizeChar[++i]='\0';
-	fieldSize = atoi(fieldSizeChar);
-	pPara++; // Get pass ","
-
-	if(fieldSize > 5) {
-		at_backError;
-	}else{
-		for(j=0; j<=fieldSize-1; j++) {
-			tmp = os_strchr(pPara, ',');
-			index = (uint8_t)(tmp - pPara);
-			for(i=0; i<=index-1; i++) {
-				if(pPara[0] == '\r' || pPara[0] == '\n') {
-					continue;
-				}
-				gFormEntryIDs[j][i]=pPara[0];
-				pPara++;
-			}
-			gFormEntryIDs[j][++i]='\0';
-			pPara++; // Get pass ","
-		}
-		at_backOk;
-	}
+	return size;
 }
 
 void ICACHE_FLASH_ATTR
@@ -109,7 +68,8 @@ disconnect_callback(void *arg) {
 void ICACHE_FLASH_ATTR
 data_receive_callback(void *arg, char *data, unsigned short length) {
 	// Received data
-	uart0_tx_buffer(data, length);
+	//uart0_tx_buffer(data, length);
+	espconn_secure_disconnect((struct espconn *)arg);
 }
 
 void ICACHE_FLASH_ATTR
@@ -119,35 +79,85 @@ data_sent_callback(void *arg) {
 }
 
 void ssl_send_data(struct espconn *_conn) {
-	char requestPath[160];
-	uint8_t i, index;
+	char *fieldSizeChar;
+	uint8_t i, index, fieldSize;
 	uint16_t requestPathSize;
 	char *tmp;
 
-	char *packetBuffer = (char *)os_zalloc(SSL_BUFFER_SIZE);
-	requestPathSize=os_sprintf(requestPath, "/forms/d/%s/formResponse?ifq", gFormID);
-	requestPath[requestPathSize]='\0';
+	char *packetBuffer = (char *)os_zalloc(PACKET_BUFFER_SIZE);
+	uint16_t packetBufferSize=0;
+
+	/*
+	 * Creating request header
+	 * Format: GET /forms/d/<google_form_id>/formResponse?ifq&<ent_id>=<ent_data>&<ent_id>=<ent_data>...&submit=Submit
+	 */
+
+	// Appending packet data
+	packetBufferSize=appendStr(packetBuffer, packetBufferSize, "GET /forms/d/");
+
+	// Appending Google Form ID
+	tmp = os_strchr(gFormData, ',');
+	index = (uint8_t)(tmp - gFormData);
+	for(i=0; i<=index-1; i++) {
+		packetBufferSize=appendChar(packetBuffer, packetBufferSize, gFormData[0]);
+		gFormData++;
+	}
+	gFormData++; // Get pass ","
+
+	// Appending packet data
+	packetBufferSize=appendStr(packetBuffer, packetBufferSize, "/formResponse?ifq");
+
+	// Converting total entries to uint8_t
+	fieldSizeChar = (char *)os_zalloc(2); // This limits the maximum entries are 9. It is already pretty enough.
+	tmp = os_strchr(gFormData, ',');
+	index = (uint8_t)(tmp - gFormData);
+	for(i=0; i<=index-1; i++) {
+		fieldSizeChar[i]=gFormData[0];
+		gFormData++;
+	}
+	fieldSizeChar[++i]='\0';
+	fieldSize = atoi(fieldSizeChar);
+	gFormData++; // Get pass ","
+	os_free(fieldSizeChar); // Free precious memories
+
+	// Make sure entry size is in-range
+	if(fieldSize > 9 || fieldSize <= 0) {
+		at_backError;
+		return;
+	}
+
+	// Appending form data
 	for(i=0; i<=fieldSize-1; i++) {
-		appendChar(requestPath, requestPathSize, '&'); requestPathSize++;
 		uint8_t j;
-		for(j=0; j<=os_strlen(gFormEntryIDs[i])-1; j++) {
-			appendChar(requestPath, requestPathSize, gFormEntryIDs[i][j]); requestPathSize++;
-		}
-		appendChar(requestPath, requestPathSize, '='); requestPathSize++;
+		packetBufferSize=appendChar(packetBuffer, packetBufferSize, '&');
 		// Add corresponding data
 		tmp=os_strchr(gFormData, ',');
 		index = (uint8_t)(tmp-gFormData);
 		for(j=0; j<=index-1; j++) {
-			appendChar(requestPath, requestPathSize, gFormData[0]); requestPathSize++;
+			if(gFormData[0] == '\r' || gFormData[0] == '\n') { // Skips \r or \n
+				continue;
+			}
+			packetBufferSize=appendChar(packetBuffer, packetBufferSize, gFormData[0]);
 			gFormData++;
 		}
 		gFormData++; // Get pass ","
 	}
-	requestPathSize=appendStr(requestPath, requestPathSize, "&submit=Submit");
-	os_sprintf(packetBuffer, REQUEST_HEADER, requestPath, GOOGLE_FORM_DOMAIN); // Assemble the packet by putting the request path and host name
-	uart0_sendStr("\r\nRQP:"); uart0_sendStr(packetBuffer); uart0_sendStr("\r\n");
-	espconn_secure_sent(_conn, packetBuffer, os_strlen(packetBuffer)); // Send the packet out
+
+	// Appending packet data
+	packetBufferSize=appendStr(packetBuffer, packetBufferSize, "&submit=Submit HTTP/1.1");
+	packetBufferSize=appendChar(packetBuffer, packetBufferSize, '\r');
+	packetBufferSize=appendChar(packetBuffer, packetBufferSize, '\n');
+	packetBufferSize=appendStr(packetBuffer, packetBufferSize, "Host: ");
+	packetBufferSize=appendStr(packetBuffer, packetBufferSize, GOOGLE_FORM_DOMAIN);
+	packetBufferSize=appendChar(packetBuffer, packetBufferSize, '\r');
+	packetBufferSize=appendChar(packetBuffer, packetBufferSize, '\n');
+	packetBufferSize=appendChar(packetBuffer, packetBufferSize, '\r');
+	packetBufferSize=appendChar(packetBuffer, packetBufferSize, '\n');
+
+	uart0_sendStr("\r\nRequest packet:"); uart0_sendStr(packetBuffer); uart0_sendStr("\r\n");
+	espconn_secure_sent(_conn, packetBuffer, packetBufferSize); // Send the packet out
 	os_free(packetBuffer); // Free the packet buffer
+	os_free(tmp);
 }
 
 void ICACHE_FLASH_ATTR

@@ -1,28 +1,44 @@
 An ESP8266 SDK Firmware with AT command to submit data to Google Form.
 
-Currently, the firmware is still not fully completed, only partially functionable.
-USE AT YOUR OWN RISK.
-There are problems in my program structure which will end up using lots of memories.
-The program may work on the first time, but it may then fail.
-Some data may be even only partially transferred.
-Some debug info/response data will be displayed via UART, these will be removed later.
-
 ### Features ###
 - Directly submitting data to Google Form.
 - SSL implemented for submitting data (As Google forced it)
 
 ### USAGE ###
-- AT+GFORMSET=<Google Form ID>,<Entry Count(MAX n)>,<Entry_1>,<Entry_2>,<Entry_n>,...
-- After running AT+GFORMSET, execute AT+GFORMSUBMIT:
-- AT+GFORMSUBMIT=<Entry_n_data>,<Entry_1_data>,<Entry_2_data>,<Entry_n_data>,...
+`AT+GFORMSUBMIT=<Google_form_ID>,<Total_entries_n>,<Entry_1_data>,<Entry_2_data>,<Entry_n_data>,...`
+
+Where:
+
+`<Google_form_ID>` = Your Google Form ID
+
+`<Total_entries_n>` = Total entries that will be submitted to Google Form, usually this equals to how many text box/input in your form
+
+`<Entry_n_data>` = Data to be submitted, must in the form of name and value pair, i.e.: entry.1335153026=data_for_this_entry
 
 ### EXAMPLE ###
-- AT+GFORMSET=1bg-8CAyVF3Rq3Q_1Z87BLxUrE4aKB1AEMhkXyQAl-u4,2,entry.1335153026,entry.1490820559
-- AT+GFORMSUBMIT=answer_1,answer_2
+- Given the form link is:
+
+	[https://docs.google.com/forms/d/1bg-8CAyVF3Rq3Q_1Z87BLxUrE4aKB1AEMhkXyQAl-u4/viewform](https://docs.google.com/forms/d/1bg-8CAyVF3Rq3Q_1Z87BLxUrE4aKB1AEMhkXyQAl-u4/viewform)
+
+- `<Google_form_ID>` = `1bg-8CAyVF3Rq3Q_1Z87BLxUrE4aKB1AEMhkXyQAl-u4`
+
+- `<Total_entries_n>` = `2`
+
+- `Entry IDs` = `entry.1335153026`, `entry.1490820559`
+
+	(Try to view source code of the form, or follow [this](https://support.google.com/docs/answer/160000?hl=en) to get the pre-filled link to extract the entry IDs)
+
+Execute the following command to submit the Google Form
+
+`AT+GFORMSUBMIT=1bg-8CAyVF3Rq3Q_1Z87BLxUrE4aKB1AEMhkXyQAl-u4,2,entry.1335153026=answer_for_question_one,entry.1490820559=answer_for_question_two`
 
 ### NOTE ###
-- Maximum entry count is 5, each entry should contain no more than 19 chars (For saving RAM, or you will meet unexpected behaviour)
-- Maximum Google Form ID chars is 59
-- Don't put too big data (lengthy data) in GFORMSUBMIT
-- Comma (,) is not allowed in any fields including form ID, entry names and entry data
+- Try not to put big (lengthy) data, the ESP8266 does not have much RAM after we used the SSL library
+- Request packet buffer size is `(Still testing)`, could be changed in `at_gformCmd.c`, but it is recommended not to modify the value.
+- SSL buffer size is `(Still testing)`, could be changed in `at_gformCmd.c`, but it is recommended not to modify the value.
+- Comma (,) is not allowed in any fields including `<Google_form_ID>`, 
+`<Entry_n_data>`
 - Remember to put \r\n after each command (complies with the original AT FW specifications)
+
+### KNOWN BUG ###
+- Sometimes the program may just freeze after sending the first data
