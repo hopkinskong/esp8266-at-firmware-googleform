@@ -95,8 +95,6 @@ at_getCmdLen(uint8_t *pCmd)
 void ICACHE_FLASH_ATTR
 at_cmdProcess(uint8_t *pAtRcvData)
 {
-  char tempStr[32];
-
   int16_t cmdId;
   int8_t cmdLen;
   uint16_t i;

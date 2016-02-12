@@ -34,11 +34,12 @@ Execute the following command to submit the Google Form
 
 ### NOTE ###
 - Try not to put big (lengthy) data, the ESP8266 does not have much RAM after we used the SSL library
-- Request packet buffer size is `(Still testing)`, could be changed in `at_gformCmd.c`, but it is recommended not to modify the value.
-- SSL buffer size is `(Still testing)`, could be changed in `at_gformCmd.c`, but it is recommended not to modify the value.
+- Request packet buffer size is `224`, could be changed in `at_gformCmd.c`, but it is recommended not to modify the value.
+- SSL buffer size is `4608`, could be changed in `at_gformCmd.c`, but it is recommended not to modify the value.
 - Comma (,) is not allowed in any fields including `<Google_form_ID>`, 
 `<Entry_n_data>`
 - Remember to put \r\n after each command (complies with the original AT FW specifications)
 
 ### KNOWN BUG ###
-- Sometimes the program may just freeze after sending the first data
+- Application may reset when sending command too fast
+- Need to add packet echo to avoid data drop (very weird)

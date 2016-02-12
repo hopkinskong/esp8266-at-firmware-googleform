@@ -19,9 +19,11 @@
  *  3072 FAIL, IMMEDIATE DISCONNECTED, NEED TO INCREASE
  *  3584 FAIL, IMMEDIATE DISCONNECTED, NEED TO INCREASE
  *  4096 OK, BUT SOME DATA DROPPED, MAYBE CASUED BY INSUFFICIENT MEMORY/SSL_BUFFER_SIZE TOO SMALL??
+ *  5120 OK, PROBLEM SAME AS 4096
+ *  4608 ?? (Added uart echo packet, problem is now gone)
  */
 
-#define SSL_BUFFER_SIZE 5120 // MAX=8192, but beyond 4096 may cause insufficient memory for packet assembly, so i recommend not to increase it.
+#define SSL_BUFFER_SIZE 4608 // MAX=8192, but beyond 4096 may cause insufficient memory for packet assembly, so i recommend not to increase it.
 #define PACKET_BUFFER_SIZE 224
 
 #define GOOGLE_FORM_DOMAIN "docs.google.com"
@@ -154,7 +156,7 @@ void ssl_send_data(struct espconn *_conn) {
 	packetBufferSize=appendChar(packetBuffer, packetBufferSize, '\r');
 	packetBufferSize=appendChar(packetBuffer, packetBufferSize, '\n');
 
-	uart0_sendStr("\r\nRequest packet:"); uart0_sendStr(packetBuffer); uart0_sendStr("\r\n");
+	uart0_sendStr("\r\nREQ PKT:"); uart0_sendStr(packetBuffer); uart0_sendStr("\r\n"); // Weird, need to put this to avoid data drop
 	espconn_secure_sent(_conn, packetBuffer, packetBufferSize); // Send the packet out
 	os_free(packetBuffer); // Free the packet buffer
 	os_free(tmp);
